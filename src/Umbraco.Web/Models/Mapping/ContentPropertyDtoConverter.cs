@@ -1,6 +1,7 @@
 ﻿using System;
-using AutoMapper;
+using Umbraco.Core;
 using Umbraco.Core.Models;
+using Umbraco.Core.PropertyEditors;
 using Umbraco.Core.Services;
 using Umbraco.Web.Models.ContentEditing;
 
@@ -16,13 +17,9 @@ namespace Umbraco.Web.Models.Mapping
         {
         }
 
-        public override ContentPropertyDto Convert(ResolutionContext context)
+        protected override ContentPropertyDto ConvertCore(Property originalProperty)
         {
-            var propertyDto = base.Convert(context);
-
-            var originalProperty = context.SourceValue as Property;
-            if (originalProperty == null)
-                throw new InvalidOperationException("Source value is not a property.");
+            var propertyDto = base.ConvertCore(originalProperty);
 
             var dataTypeService = DataTypeService;
 
@@ -30,7 +27,7 @@ namespace Umbraco.Web.Models.Mapping
             propertyDto.ValidationRegExp = originalProperty.PropertyType.ValidationRegExp;
             propertyDto.Description = originalProperty.PropertyType.Description;
             propertyDto.Label = originalProperty.PropertyType.Name;
-
+            
             //TODO: We should be able to look both of these up at the same time!
             propertyDto.DataType = dataTypeService.GetDataTypeDefinitionById(originalProperty.PropertyType.DataTypeDefinitionId);
             propertyDto.PreValues = dataTypeService.GetPreValuesCollectionByDataTypeId(originalProperty.PropertyType.DataTypeDefinitionId);
